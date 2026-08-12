@@ -1,0 +1,42 @@
+# ============================================================
+# MingJi CI/CD · GitHub Actions 自动部署
+# 触发：每次 push 到 master 分支
+# 流程：SSH 到服务器 → 拉取最新代码 → 执行部署脚本
+# ============================================================
+
+name: Deploy MingJi
+
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:    # 支持手动触发
+
+jobs:
+  deploy:
+    name: Deploy to Aliyun Server
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install sshpass
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y sshpass
+
+      - name: Deploy to Aliyun Server
+        run: |
+          sshpass -p "${{ secrets.SERVER_PASSWORD }}" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+              root@${{ secrets.SERVER_HOST }} \
+              "cd /opt/MingJi && git pull && bash deploy.sh"
+
+      - name: Verify Deployment
+        run: |
+          echo "========================================="
+          echo "  ✅ 部署完成！"
+          echo "  📱 访问地址: http://${{ secrets.SERVER_HOST }}:8080"
+          echo "  👤 默认用户: mingji"
+          echo "  🔑 默认密码: mingji123"
+          echo "========================================="
