@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="我的 · 铭记">
+    <title>我的 · 铭记</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="page-me">
+
+    <!-- 顶部导航（PC） -->
+    <div th:replace="~{fragments/layouts :: top-nav}"></div>
+
+    <!-- 底部导航（移动端） -->
+    <div th:replace="~{fragments/layouts :: bottom-nav}"></div>
+
+    <main class="main-content">
+
+        <!-- ================= 个人资料卡片 ================= -->
+        <section class="profile-card" aria-label="个人资料">
+            <div class="profile-avatar">
+                <img th:if="${user != null and user.avatar != null}" th:src="${user.avatar}" alt="头像" onerror="this.style.display='none'">
+                <span th:if="${user == null or user.avatar == null}" class="avatar-placeholder" th:text="${user != null and user.nickname != null ? user.nickname.substring(0,1) : '铭'}">铭</span>
+            </div>
+            <h1 class="profile-name" th:text="${user != null ? user.realName : '刘佳诚'}">刘佳诚</h1>
+            <p class="profile-nickname" th:text="${user != null ? user.nickname : '诚铭'}">诚铭</p>
+            <p class="profile-school" th:text="${user != null ? user.school : '湖南商务职业技术学院'}">湖南商务职业技术学院</p>
+            <p class="profile-signature" th:text="${user != null ? user.signature : '记录生活，也记录自己。'}">记录生活，也记录自己。</p>
+        </section>
+
+        <!-- ================= 我的数据 ================= -->
+        <section class="stats-grid" aria-label="我的数据">
+            <div class="stat-card">
+                <span class="stat-number" th:text="${diaryCount}">0</span>
+                <span class="stat-label">日记</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number" th:text="${inspirationCount}">0</span>
+                <span class="stat-label">灵感</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number" th:text="${quoteCount}">0</span>
+                <span class="stat-label">句子</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number" th:text="${todoCount}">0</span>
+                <span class="stat-label">待办</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number" th:text="${favoriteCount}">0</span>
+                <span class="stat-label">收藏</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number">0</span>
+                <span class="stat-label">照片</span>
+            </div>
+        </section>
+
+        <!-- ================= 我的功能 ================= -->
+        <section class="function-list" aria-label="我的功能">
+            <a th:href="@{/me/profile}" class="function-item">
+                <span class="function-icon">👤</span>
+                <span class="function-label">我的资料</span>
+                <span class="function-arrow">›</span>
+            </a>
+            <a th:href="@{/me/favorites}" class="function-item">
+                <span class="function-icon">❤️</span>
+                <span class="function-label">我的收藏</span>
+                <span class="function-arrow">›</span>
+            </a>
+            <a th:href="@{/me/pinned}" class="function-item">
+                <span class="function-icon">📌</span>
+                <span class="function-label">我的置顶</span>
+                <span class="function-arrow">›</span>
+            </a>
+            <a th:href="@{/me/drafts}" class="function-item">
+                <span class="function-icon">📝</span>
+                <span class="function-label">我的草稿</span>
+                <span class="function-arrow">›</span>
+            </a>
+            <a th:href="@{/me/photos}" class="function-item">
+                <span class="function-icon">📷</span>
+                <span class="function-label">我的照片</span>
+                <span class="function-arrow">›</span>
+            </a>
+            <a th:href="@{/me/tags}" class="function-item">
+                <span class="function-icon">🏷</span>
+                <span class="function-label">我的标签</span>
+                <span class="function-arrow">›</span>
+            </a>
+            <a th:href="@{/me/footprints}" class="function-item">
+                <span class="function-icon">🗺</span>
+                <span class="function-label">我的足迹</span>
+                <span class="function-arrow">›</span>
+            </a>
+            <a th:href="@{/me/settings}" class="function-item">
+                <span class="function-icon">⚙️</span>
+                <span class="function-label">设置</span>
+                <span class="function-arrow">›</span>
+            </a>
+        </section>
+
+        <!-- 退出登录 -->
+        <div class="logout-area">
+            <button type="button" class="btn-logout" onclick="alert('Phase 2 实现登录/退出')">退出登录</button>
+        </div>
+    </main>
+
+    <script th:src="@{/js/app.js}"></script>
+</body>
+</html>

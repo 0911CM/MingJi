@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="我的日记 · 铭记">
+    <title>日记 · 铭记</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="page-daily">
+
+    <!-- 顶部导航（PC） -->
+    <div th:replace="~{fragments/layouts :: top-nav}"></div>
+
+    <!-- 底部导航（移动端） -->
+    <div th:replace="~{fragments/layouts :: bottom-nav}"></div>
+
+    <main class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">日记</h1>
+            <p class="page-subtitle">我的日记 · 记录每天的生活</p>
+        </div>
+
+        <!-- 日记列表 -->
+        <section class="timeline" aria-label="日记列表">
+            <div th:if="${#lists.isEmpty(diaries)}" class="empty-state">
+                <p class="empty-text">还没有日记</p>
+                <p class="empty-hint">在首页写下内容，选择「日记」就会自动出现在这里</p>
+                <a th:href="@{/}" class="btn btn-primary">去记录</a>
+            </div>
+
+            <div th:if="${!#lists.isEmpty(diaries)}" class="diary-list">
+                <article class="diary-card" th:each="diary : ${diaries}">
+                    <div class="diary-meta">
+                        <span class="diary-type">📖 日记</span>
+                        <time class="diary-date" th:text="${#temporals.format(diary.createdAt, 'yyyy-MM-dd HH:mm')}">2026-08-12</time>
+                    </div>
+                    <h2 class="diary-title" th:text="${diary.title}">标题</h2>
+                    <p class="diary-content" th:text="${diary.content}">正文内容</p>
+                    <div class="diary-footer">
+                        <span th:if="${diary.location != null and !diary.location.isEmpty()}" class="diary-location">
+                            📍 <span th:text="${diary.location}">地点</span>
+                        </span>
+                        <span th:if="${diary.pinned}" class="diary-pinned">📌 置顶</span>
+                        <span th:if="${diary.favorite}" class="diary-favorite">❤️ 收藏</span>
+                    </div>
+                </article>
+            </div>
+        </section>
+    </main>
+
+    <script th:src="@{/js/app.js}"></script>
+</body>
+</html>

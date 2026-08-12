@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="灵感 · 铭记">
+    <title>灵感 · 铭记</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="page-inspiration">
+
+    <!-- 顶部导航（PC） -->
+    <div th:replace="~{fragments/layouts :: top-nav}"></div>
+
+    <!-- 底部导航（移动端） -->
+    <div th:replace="~{fragments/layouts :: bottom-nav}"></div>
+
+    <main class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">灵感</h1>
+            <p class="page-subtitle">保存思想的第二个空间</p>
+        </div>
+
+        <!-- 灵感分类导航（3 个标签） -->
+        <div class="inspiration-tabs inspiration-tabs-3" role="tablist" aria-label="灵感分类">
+            <button type="button" class="tab-btn active" data-tab="ideas" role="tab">灵感</button>
+            <button type="button" class="tab-btn" data-tab="todos" role="tab">待办</button>
+            <button type="button" class="tab-btn" data-tab="quotes" role="tab">名句</button>
+        </div>
+
+        <!-- 灵感 -->
+        <section class="tab-panel active" id="tab-ideas" data-panel="ideas">
+            <div class="section-head">
+                <h2 class="section-title">灵感</h2>
+            </div>
+            <div th:if="${#lists.isEmpty(inspirations)}" class="empty-state">
+                <p class="empty-text">还没有灵感</p>
+                <p class="empty-hint">想到什么，先留下。在首页写下灵感，选择「灵感」就会出现在这里</p>
+                <a th:href="@{/}" class="btn btn-primary">去记录</a>
+            </div>
+            <div th:if="${!#lists.isEmpty(inspirations)}" class="idea-grid">
+                <article class="idea-card" th:each="insp : ${inspirations}">
+                    <div class="idea-meta">
+                        <span class="idea-type">💡 灵感</span>
+                        <time class="idea-date" th:text="${#temporals.format(insp.createdAt, 'MM-dd HH:mm')}">08-12</time>
+                    </div>
+                    <p class="idea-content" th:text="${insp.content}">灵感内容</p>
+                </article>
+            </div>
+        </section>
+
+        <!-- 待办 -->
+        <section class="tab-panel" id="tab-todos" data-panel="todos">
+            <div class="section-head">
+                <h2 class="section-title">待办</h2>
+            </div>
+
+            <!-- 新建待办 -->
+            <div class="todo-input-box">
+                <input type="text" id="todoInput" class="todo-input" placeholder="添加待办事项……" maxlength="100">
+                <button type="button" class="btn btn-primary" id="todoAddBtn">添加</button>
+            </div>
+
+            <!-- 待办列表 -->
+            <div th:if="${#lists.isEmpty(todos)}" class="empty-state todo-empty">
+                <p class="empty-text">还没有待办事项</p>
+                <p class="empty-hint">在灵感中新建待办，或在首页选择「待办」发布</p>
+            </div>
+
+            <div th:if="${!#lists.isEmpty(todos)}" class="todo-list">
+                <div class="todo-item" th:each="todo : ${todos}" th:classappend="${todo.done} ? 'done'">
+                    <button type="button" class="todo-check" th:attr="data-id=${todo.id}" th:text="${todo.done} ? '✓' : ''" aria-label="切换完成"></button>
+                    <span class="todo-title" th:text="${todo.title}">待办内容</span>
+                    <span class="todo-priority" th:if="${todo.priority == 'HIGH'}" th:text="高">高</span>
+                    <button type="button" class="todo-delete" th:attr="data-id=${todo.id}" aria-label="删除">✕</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 名句 -->
+        <section class="tab-panel" id="tab-quotes" data-panel="quotes">
+            <div class="section-head">
+                <h2 class="section-title">名句</h2>
+            </div>
+            <div th:if="${#lists.isEmpty(quotes)}" class="empty-state">
+                <p class="empty-text">还没有收藏的名句</p>
+                <p class="empty-hint">在首页写下喜欢的句子，选择「名句」就会出现在这里</p>
+                <a th:href="@{/}" class="btn btn-primary">去记录</a>
+            </div>
+            <div th:if="${!#lists.isEmpty(quotes)}" class="quote-list">
+                <blockquote class="quote-card" th:each="quote : ${quotes}">
+                    <p class="quote-text" th:text="${quote.content}">句子内容</p>
+                    <footer class="quote-footer">
+                        <span th:if="${quote.quoteAuthor != null and !quote.quoteAuthor.isEmpty()}" class="quote-author" th:text="${quote.quoteAuthor}">作者</span>
+                        <span th:if="${quote.quoteSource != null and !quote.quoteSource.isEmpty()}" class="quote-source" th:text="${'——《' + quote.quoteSource + '》'}">来源</span>
+                    </footer>
+                </blockquote>
+            </div>
+        </section>
+    </main>
+
+    <script th:src="@{/js/app.js}"></script>
+</body>
+</html>

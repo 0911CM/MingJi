@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="铭记 · 记录生活，也记录自己。">
+    <title>铭记 · 今天，有什么值得铭记？</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="page-home">
+
+    <!-- 顶部导航（PC） -->
+    <div th:replace="~{fragments/layouts :: top-nav}"></div>
+
+    <!-- 底部导航（移动端） -->
+    <div th:replace="~{fragments/layouts :: bottom-nav}"></div>
+
+    <main class="main-content">
+        <div class="page-header">
+            <h1 class="logo-title">铭记</h1>
+            <p class="page-subtitle">今天，有什么值得铭记？</p>
+            <p class="page-hint" th:text="${user != null ? user.signature : '记录生活，也记录自己。'}">记录生活，也记录自己。</p>
+        </div>
+
+        <!-- ================= 核心输入区域 ================= -->
+        <section class="composer" aria-label="快速记录">
+            <div class="composer-box">
+                <textarea
+                    class="composer-textarea"
+                    placeholder="今天想记录点什么？&#10;写下今天发生的事情、&#10;突然想到的灵感、&#10;或者一句想收藏的话……"
+                    rows="8"></textarea>
+
+                <div class="composer-toolbar">
+                    <div class="composer-actions">
+                        <button type="button" class="tool-btn" title="添加图片" aria-label="添加图片" onclick="alert('Phase 2 实现图片上传')">
+                            <span class="tool-icon">🖼</span>
+                        </button>
+                        <button type="button" class="tool-btn" title="添加地点" aria-label="添加地点" onclick="alert('Phase 2 实现地点添加')">
+                            <span class="tool-icon">📍</span>
+                        </button>
+                        <button type="button" class="tool-btn" title="添加标签" aria-label="添加标签" onclick="alert('Phase 2 实现标签添加')">
+                            <span class="tool-icon">🏷</span>
+                        </button>
+                    </div>
+                    <div class="composer-buttons">
+                        <button type="button" class="btn btn-ghost" id="btnDraft">保存草稿</button>
+                        <button type="button" class="btn btn-primary" id="btnPublish">发布</button>
+                    </div>
+                </div>
+
+                <div class="category-picker" id="categoryPicker">
+                    <p class="category-title">把这次记录放到？</p>
+                    <div class="category-options category-options-4">
+                        <button type="button" class="category-btn" data-type="DIARY">
+                            <span class="category-emoji">📖</span>
+                            <span class="category-name">日记</span>
+                        </button>
+                        <button type="button" class="category-btn" data-type="INSPIRATION">
+                            <span class="category-emoji">💡</span>
+                            <span class="category-name">灵感</span>
+                        </button>
+                        <button type="button" class="category-btn" data-type="TODO">
+                            <span class="category-emoji">✅</span>
+                            <span class="category-name">待办</span>
+                        </button>
+                        <button type="button" class="category-btn" data-type="QUOTE">
+                            <span class="category-emoji">✨</span>
+                            <span class="category-name">名句</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= 我的置顶 ================= -->
+        <section class="home-section" aria-label="我的置顶">
+            <div class="section-head">
+                <h2 class="section-title">我的置顶</h2>
+                <a th:href="@{/me/pinned}" class="section-more">查看全部</a>
+            </div>
+            <div class="empty-state">
+                <p class="empty-text">还没有置顶内容</p>
+                <p class="empty-hint">收藏喜欢的内容，把它们放在最上面</p>
+            </div>
+        </section>
+
+        <!-- ================= 最近记录 ================= -->
+        <section class="home-section" aria-label="最近记录">
+            <div class="section-head">
+                <h2 class="section-title">最近记录</h2>
+                <a th:href="@{/daily}" class="section-more">查看日记</a>
+            </div>
+            <div th:if="${#lists.isEmpty(recentContents)}" class="empty-state">
+                <p class="empty-text">还没有记录</p>
+                <p class="empty-hint">写下今天的第一条记录吧</p>
+            </div>
+            <div th:if="${!#lists.isEmpty(recentContents)}" class="recent-list">
+                <article class="recent-item" th:each="item : ${recentContents}">
+                    <div class="recent-item-head">
+                        <span class="recent-type" th:switch="${item.contentType}">
+                            <span th:case="'DIARY'">📖 日记</span>
+                            <span th:case="'INSPIRATION'">💡 灵感</span>
+                            <span th:case="'QUOTE'">✨ 名句</span>
+                        </span>
+                        <time class="recent-date" th:text="${#temporals.format(item.createdAt, 'MM-dd HH:mm')}">08-12</time>
+                    </div>
+                    <p class="recent-text" th:text="${item.title != null and !item.title.isEmpty() ? item.title : item.content}">内容</p>
+                </article>
+            </div>
+        </section>
+    </main>
+
+    <script th:src="@{/js/app.js}"></script>
+</body>
+</html>

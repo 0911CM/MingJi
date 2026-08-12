@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+
+<!-- ============================================================
+     布局碎片：顶部导航（PC） / 底部导航（移动端）
+     ============================================================ -->
+
+<!-- 顶部导航（PC ≥ 768px 显示） -->
+<nav th:fragment="top-nav" class="top-nav" aria-label="顶部导航">
+    <div class="top-nav-inner">
+        <a th:href="@{/}" class="brand">
+            <span class="brand-mark">铭</span>
+            <span class="brand-text">铭记</span>
+        </a>
+        <div class="top-nav-links">
+            <a th:href="@{/}" th:classappend="${activeNav == 'home'} ? 'active'" th:text="首页">首页</a>
+            <a th:href="@{/daily}" th:classappend="${activeNav == 'daily'} ? 'active'" th:text="日记">日记</a>
+            <a th:href="@{/inspiration}" th:classappend="${activeNav == 'inspiration'} ? 'active'" th:text="灵感">灵感</a>
+            <a th:href="@{/me}" th:classappend="${activeNav == 'me'} ? 'active'" th:text="我的">我的</a>
+        </div>
+    </div>
+</nav>
+
+<!-- 底部导航（移动端 < 768px 固定显示） -->
+<nav th:fragment="bottom-nav" class="bottom-nav" aria-label="底部导航">
+    <a th:href="@{/}" th:classappend="${activeNav == 'home'} ? 'active'">
+        <span class="nav-icon">⌂</span>
+        <span class="nav-label">首页</span>
+    </a>
+    <a th:href="@{/daily}" th:classappend="${activeNav == 'daily'} ? 'active'">
+        <span class="nav-icon">📖</span>
+        <span class="nav-label">日记</span>
+    </a>
+    <a th:href="@{/inspiration}" th:classappend="${activeNav == 'inspiration'} ? 'active'">
+        <span class="nav-icon">💡</span>
+        <span class="nav-label">灵感</span>
+    </a>
+    <a th:href="@{/me}" th:classappend="${activeNav == 'me'} ? 'active'">
+        <span class="nav-icon">👤</span>
+        <span class="nav-label">我的</span>
+    </a>
+</nav>
+
+</html>
