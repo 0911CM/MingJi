@@ -1,0 +1,37 @@
+# ============================================================
+# MingJi · Render 云部署配置
+# 使用方法：
+#   1. 把代码推送到 GitHub
+#   2. 在 Render 网站 Dashboard → New → Blueprint
+#   3. 连接 GitHub 仓库，Render 自动读取本文件
+# ============================================================
+
+services:
+  # ---------- MingJi 应用服务 ----------
+  - type: web
+    name: mingji
+    runtime: docker
+    plan: free
+    envVars:
+      # 自动注入 Render 专用数据库连接串（也可手动填）
+      - key: MINGJI_DB_URL
+        sync: false
+      - key: MINGJI_DB_USERNAME
+        sync: false
+      - key: MINGJI_DB_PASSWORD
+        sync: false
+      # 激活 prod 配置（读取环境变量）
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      # 上传目录（Render 免费版无持久磁盘，用临时目录）
+      - key: MINGJI_UPLOAD_DIR
+        value: /tmp/mingji-uploads/
+
+# ---------- 数据库服务（可选：Render 管理 Postgres/MySQL）----------
+# Render 免费版通常提供 Postgres，可换成 Railway / Neon / PlanetScale 的 MySQL
+# 这里用 Render MySQL 示例（免费额度有限，需确认最新政策）
+databases:
+  - name: mingji-db
+    plan: free
+    databaseName: mingji
+    user: mingji

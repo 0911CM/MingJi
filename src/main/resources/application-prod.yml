@@ -1,0 +1,48 @@
+# ============================================================
+# MingJi · 云端部署配置（Render 等平台使用）
+# 启动方式：
+#   java -jar mingji.jar --spring.profiles.active=prod
+# 或在 Render 环境变量中设置 SPRING_PROFILES_ACTIVE=prod
+#
+# 所有敏感信息通过环境变量注入：
+#   MINGJI_DB_URL      数据库连接地址（示例见下方）
+#   MINGJI_DB_USERNAME 数据库用户名
+#   MINGJI_DB_PASSWORD 数据库密码
+# ============================================================
+
+server:
+  port: ${PORT:8080}          # Render 会自动注入 PORT
+  servlet:
+    encoding:
+      charset: UTF-8
+      force: true
+
+spring:
+  # 数据源（云端 MySQL，通过环境变量注入，不在代码里写真实密码）
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${MINGJI_DB_URL:jdbc:mysql://localhost:3306/mingji?useSSL=true&serverTimezone=Asia/Shanghai&characterEncoding=utf8&allowPublicKeyRetrieval=true}
+    username: ${MINGJI_DB_USERNAME:root}
+    password: ${MINGJI_DB_PASSWORD:}
+
+  # JPA
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+
+  # Thymeleaf（云端开启缓存提升性能）
+  thymeleaf:
+    cache: true
+    encoding: UTF-8
+    mode: HTML
+
+  # 文件上传
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 50MB
+
+# 自定义配置（云端使用相对路径，挂载到 Render 磁盘）
+mingji:
+  upload-dir: ${MINGJI_UPLOAD_DIR:/var/data/mingji/uploads/}
