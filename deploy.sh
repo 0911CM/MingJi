@@ -78,8 +78,10 @@ services:
       MYSQL_PASSWORD: Mingji123456!
     volumes:
       - /opt/mingji-db:/var/lib/mysql
-    ports:
-      - "3306:3306"
+    # 不暴露 3306 到宿主机（宝塔自带的 MySQL 占了 3306）
+    # 应用容器通过 Docker 内部网络访问 mysql:3306
+    # ports:
+    #   - "3306:3306"
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-umingji", "-pMingji123456!"]
