@@ -29,7 +29,7 @@
             <p class="profile-signature" th:text="${user != null ? user.signature : '记录生活，也记录自己。'}">记录生活，也记录自己。</p>
         </section>
 
-        <!-- ================= 我的数据 ================= -->
+        <!-- ================= 我的数据（顺序：日记/灵感/名句/待办/收藏/照片） ================= -->
         <section class="stats-grid" aria-label="我的数据">
             <div class="stat-card">
                 <span class="stat-number" th:text="${diaryCount}">0</span>
@@ -41,7 +41,7 @@
             </div>
             <div class="stat-card">
                 <span class="stat-number" th:text="${quoteCount}">0</span>
-                <span class="stat-label">句子</span>
+                <span class="stat-label">名句</span>
             </div>
             <div class="stat-card">
                 <span class="stat-number" th:text="${todoCount}">0</span>
