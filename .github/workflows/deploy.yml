@@ -21,6 +21,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Check Secrets
+        run: |
+          if [ -z "${{ secrets.SERVER_HOST }}" ] || [ -z "${{ secrets.SERVER_PASSWORD }}" ]; then
+            echo "❌ 错误：SERVER_HOST 或 SERVER_PASSWORD Secrets 未配置！"
+            echo "请到 GitHub 仓库 → Settings → Secrets and variables → Actions → New repository secret"
+            exit 1
+          fi
+          echo "✅ Secrets 配置正确"
+
       - name: Install sshpass
         run: |
           sudo apt-get update
