@@ -1,29 +1,27 @@
 # ============================================================
-# MingJi · 云端部署配置（Render 等平台使用）
-# 启动方式：
-#   java -jar mingji.jar --spring.profiles.active=prod
-# 或在 Render 环境变量中设置 SPRING_PROFILES_ACTIVE=prod
+# MingJi · Railway 云端部署配置
 #
-# 所有敏感信息通过环境变量注入：
-#   MINGJI_DB_URL      数据库连接地址（示例见下方）
-#   MINGJI_DB_USERNAME 数据库用户名
-#   MINGJI_DB_PASSWORD 数据库密码
+# Railway 会自动注入以下 MySQL 环境变量（无需手动填）：
+#   MYSQL_URL        jdbc:mysql://... 完整 JDBC 连接串
+#   MYSQL_USER       数据库用户名
+#   MYSQL_PASSWORD   数据库密码
+# 若 Railway 未自动注入，也可手动在环境变量填 MINGJI_DB_*
 # ============================================================
 
 server:
-  port: ${PORT:8080}          # Render 会自动注入 PORT
+  port: ${PORT:8080}          # Railway 自动注入 PORT
   servlet:
     encoding:
       charset: UTF-8
       force: true
 
 spring:
-  # 数据源（云端 MySQL，通过环境变量注入，不在代码里写真实密码）
+  # 数据源：优先读 Railway 注入的 MYSQL_URL，其次用户自定义
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${MINGJI_DB_URL:jdbc:mysql://localhost:3306/mingji?useSSL=true&serverTimezone=Asia/Shanghai&characterEncoding=utf8&allowPublicKeyRetrieval=true}
-    username: ${MINGJI_DB_USERNAME:root}
-    password: ${MINGJI_DB_PASSWORD:}
+    url: ${MYSQL_URL:${MINGJI_DB_URL:jdbc:mysql://localhost:3306/mingji?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=utf8&allowPublicKeyRetrieval=true}}
+    username: ${MYSQL_USER:${MINGJI_DB_USERNAME:root}}
+    password: ${MYSQL_PASSWORD:${MINGJI_DB_PASSWORD:}}
 
   # JPA
   jpa:
@@ -31,7 +29,7 @@ spring:
       ddl-auto: none
     show-sql: false
 
-  # Thymeleaf（云端开启缓存提升性能）
+  # Thymeleaf（云端开启缓存）
   thymeleaf:
     cache: true
     encoding: UTF-8
@@ -43,6 +41,6 @@ spring:
       max-file-size: 10MB
       max-request-size: 50MB
 
-# 自定义配置（云端使用相对路径，挂载到 Render 磁盘）
+# 自定义配置（Railway 免费版无磁盘，图片上传用临时目录）
 mingji:
-  upload-dir: ${MINGJI_UPLOAD_DIR:/var/data/mingji/uploads/}
+  upload-dir: ${MINGJI_UPLOAD_DIR:/tmp/mingji-uploads/}
