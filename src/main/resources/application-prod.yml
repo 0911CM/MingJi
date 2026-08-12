@@ -26,7 +26,7 @@ spring:
   # JPA
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
     show-sql: false
 
   # Thymeleaf（云端开启缓存）
