@@ -4,6 +4,12 @@ server:
     encoding:
       charset: UTF-8
       force: true
+    session:
+      timeout: 365d
+      cookie:
+        max-age: 365d
+        http-only: true
+        same-site: strict
 
 spring:
   application:
@@ -46,3 +52,7 @@ spring:
 # 自定义配置
 mingji:
   upload-dir: F:/Computer/Projects/MingJi/uploads/
+  security:
+    password-hash: ${MINGJI_ACCESS_PASSWORD_HASH:}
+    remember-key: ${MINGJI_REMEMBER_KEY:}
+    secure-cookie: ${MINGJI_SECURE_COOKIE:false}

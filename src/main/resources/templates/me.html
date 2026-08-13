@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="description" content="我的 · 铭记">
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
     <title>我的 · 铭记</title>
     <link rel="stylesheet" th:href="@{/css/app.css}">
 </head>
@@ -103,7 +105,9 @@
 
         <!-- 退出登录 -->
         <div class="logout-area">
-            <button type="button" class="btn-logout" onclick="alert('Phase 2 实现登录/退出')">退出登录</button>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="btn-logout">退出登录</button>
+            </form>
         </div>
     </main>
 

@@ -5,6 +5,27 @@
 (function () {
     'use strict';
 
+    /* ---------- 安全请求 ---------- */
+    function csrfHeaders(headers) {
+        const token = document.querySelector('meta[name="_csrf"]');
+        const header = document.querySelector('meta[name="_csrf_header"]');
+        const result = Object.assign({}, headers || {});
+        if (token && header) result[header.content] = token.content;
+        return result;
+    }
+
+    function secureFetch(url, options) {
+        const requestOptions = Object.assign({}, options || {});
+        requestOptions.headers = csrfHeaders(requestOptions.headers);
+        return fetch(url, requestOptions).then(response => {
+            if (response.status === 401) {
+                window.location.href = '/access';
+                throw new Error('访问验证已失效');
+            }
+            return response;
+        });
+    }
+
     /* ---------- 主题 ---------- */
     function initTheme() {
         const savedTheme = localStorage.getItem('mingji-theme') || 'light';
@@ -47,7 +68,7 @@
                 quoteSource: ''
             });
 
-            fetch('/api/content/' + action, {
+            secureFetch('/api/content/' + action, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json; charset=utf-8' },
                 body: body
@@ -152,7 +173,7 @@
                 alert('输入待办内容');
                 return;
             }
-            fetch('/api/todos', {
+            secureFetch('/api/todos', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json; charset=utf-8' },
                 body: JSON.stringify({ title: text, priority: 'NORMAL' })
@@ -181,7 +202,7 @@
             btn.addEventListener('click', function () {
                 const id = this.dataset.id;
                 localStorage.setItem('mingji-inspiration-tab', 'todos');
-                fetch('/api/todos/' + id + '/toggle', { method: 'PUT' })
+                secureFetch('/api/todos/' + id + '/toggle', { method: 'PUT' })
                     .then(res => res.json())
                     .then(data => {
                         if (data.success) window.location.reload();
@@ -196,7 +217,7 @@
                 const id = this.dataset.id;
                 if (!confirm('确定删除这条待办？')) return;
                 localStorage.setItem('mingji-inspiration-tab', 'todos');
-                fetch('/api/todos/' + id, { method: 'DELETE' })
+                secureFetch('/api/todos/' + id, { method: 'DELETE' })
                     .then(res => res.json())
                     .then(data => {
                         if (data.success) window.location.reload();

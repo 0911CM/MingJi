@@ -31,6 +31,17 @@ mysql -u root < sql/init.sql
 
 ### 2. 启动应用
 
+应用启用了整站密码门禁。启动前需要设置站点密码的 BCrypt 哈希和一个固定的
+Remember-Me 签名密钥；二者均不得提交到 Git：
+
+```text
+MINGJI_ACCESS_PASSWORD_HASH='$2a$...'
+MINGJI_REMEMBER_KEY=至少32位随机字符串
+```
+
+验证成功后浏览器会保持一年登录状态。网站内不提供修改密码功能；需要更换时，
+修改服务器环境变量并重启应用。修改任一配置都会使已有的长期登录 Cookie 失效。
+
 ```bash
 # Windows
 mvnw.cmd spring-boot:run
