@@ -59,23 +59,44 @@ jobs:
         run: |
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
-          ssh-keyscan -t ed25519 "$SERVER_HOST" > ~/.ssh/known_hosts 2>/dev/null
+          keyscan_ok=false
+          for attempt in 1 2 3 4 5 6; do
+            if ssh-keyscan -T 20 -t ed25519 "$SERVER_HOST" > ~/.ssh/known_hosts 2>/dev/null; then
+              keyscan_ok=true
+              break
+            fi
+            echo "等待服务器 SSH 响应，第 ${attempt} 次重试..."
+            sleep 10
+          done
+          if [ "$keyscan_ok" != true ]; then
+            echo "❌ 无法读取服务器 SSH 公钥"
+            exit 1
+          fi
           fingerprint=$(ssh-keygen -lf ~/.ssh/known_hosts -E sha256 | awk '{print $2}')
           if [ "$fingerprint" != "SHA256:4CDEgQug7DDPR8gPq/DN15Sxfe5Xyl4PvYulUccCYug" ]; then
             echo "❌ 服务器 SSH 指纹不匹配，停止部署"
             exit 1
           fi
           chmod 600 ~/.ssh/known_hosts
-          ssh_options=(-o ServerAliveInterval=30 -o ServerAliveCountMax=10)
-          sshpass -e ssh "${ssh_options[@]}" root@"$SERVER_HOST" \
-              'cd /opt/MingJi &&
-               pulled=false &&
-               for attempt in 1 2 3; do
-                 if git -c http.version=HTTP/1.1 pull --ff-only; then pulled=true; break; fi
-                 echo "Git 拉取失败，第 ${attempt} 次重试..."
-                 sleep 5
-               done &&
-               [ "$pulled" = true ] && mkdir -p target'
+          ssh_options=(-o ConnectTimeout=30 -o ServerAliveInterval=30 -o ServerAliveCountMax=10)
+          prepared=false
+          for attempt in 1 2 3 4 5 6; do
+            if sshpass -e ssh "${ssh_options[@]}" root@"$SERVER_HOST" \
+                'cd /opt/MingJi &&
+                 pulled=false &&
+                 for git_attempt in 1 2 3; do
+                   if git -c http.version=HTTP/1.1 pull --ff-only; then pulled=true; break; fi
+                   echo "Git 拉取失败，第 ${git_attempt} 次重试..."
+                   sleep 5
+                 done &&
+                 [ "$pulled" = true ] && mkdir -p target'; then
+              prepared=true
+              break
+            fi
+            echo "等待服务器 SSH 登录，第 ${attempt} 次重试..."
+            sleep 10
+          done
+          [ "$prepared" = true ]
           sshpass -e scp "${ssh_options[@]}" target/mingji-0.1.0.jar \
               root@"$SERVER_HOST":/opt/MingJi/target/mingji-0.1.0.jar.upload
           sshpass -e ssh "${ssh_options[@]}" root@"$SERVER_HOST" \
