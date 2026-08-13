@@ -133,4 +133,4 @@ CREATE TABLE IF NOT EXISTS `file` (
 --    用户名: mingji / 密码: 将在 Phase 2 实现登录时正式处理
 -- ============================================================
 INSERT IGNORE INTO `user` (`username`, `password`, `nickname`, `real_name`, `school`, `signature`, `created_at`)
-VALUES ('mingji', '{noop}mingji123', '诚铭', '刘佳诚', '湖南商务职业技术学院', '记录生活，也记录自己。', NOW());
+VALUES ('mingji', '{noop}mingji123', 'MingJi', NULL, NULL, '记录生活，也记录自己。', NOW());

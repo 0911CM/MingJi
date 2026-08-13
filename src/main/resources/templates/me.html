@@ -23,9 +23,9 @@
                 <img th:if="${user != null and user.avatar != null}" th:src="${user.avatar}" alt="头像" onerror="this.style.display='none'">
                 <span th:if="${user == null or user.avatar == null}" class="avatar-placeholder" th:text="${user != null and user.nickname != null ? user.nickname.substring(0,1) : '铭'}">铭</span>
             </div>
-            <h1 class="profile-name" th:text="${user != null ? user.realName : '刘佳诚'}">刘佳诚</h1>
-            <p class="profile-nickname" th:text="${user != null ? user.nickname : '诚铭'}">诚铭</p>
-            <p class="profile-school" th:text="${user != null ? user.school : '湖南商务职业技术学院'}">湖南商务职业技术学院</p>
+            <h1 class="profile-name" th:text="${user != null ? user.realName : 'MingJi'}">MingJi</h1>
+            <p class="profile-nickname" th:text="${user != null ? user.nickname : 'MingJi'}">MingJi</p>
+            <p class="profile-school" th:text="${user != null ? user.school : ''}"></p>
             <p class="profile-signature" th:text="${user != null ? user.signature : '记录生活，也记录自己。'}">记录生活，也记录自己。</p>
         </section>
 

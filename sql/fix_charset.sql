@@ -8,9 +8,9 @@ USE mingji;
 SET NAMES utf8mb4;
 
 UPDATE `user` SET
-  real_name = '刘佳诚',
-  nickname = '诚铭',
-  school = '湖南商务职业技术学院',
+  real_name = NULL,
+  nickname = 'MingJi',
+  school = NULL,
   signature = '记录生活，也记录自己。'
 WHERE username = 'mingji';
 

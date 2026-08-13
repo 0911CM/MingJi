@@ -29,9 +29,9 @@ public class MingJiApplication {
                 User user = new User();
                 user.setUsername("mingji");
                 user.setPassword("{noop}mingji123");
-                user.setNickname("诚铭");
-                user.setRealName("刘佳诚");
-                user.setSchool("湖南商务职业技术学院");
+                user.setNickname("MingJi");
+                user.setRealName("MingJi");
+                user.setSchool(null);
                 user.setSignature("记录生活，也记录自己。");
                 userRepository.save(user);
                 System.out.println("[MingJi] 默认用户已创建: mingji / mingji123");

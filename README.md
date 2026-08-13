@@ -125,10 +125,10 @@ MingJi/
 
 - 用户名：`mingji`
 - 密码：`mingji123`（占位，Phase 2 实现登录后处理）
-- 昵称：诚铭 · 姓名：刘佳诚 · 学校：湖南商务职业技术学院
+- 昵称：MingJi
 
 > ⚠️ 密码/资料将在 Phase 2 登录功能完成后正式处理。
 
 ---
 
-Made with ❤️ by 诚铭
+Made with ❤️ by MingJi
