@@ -103,7 +103,9 @@ services:
       MINGJI_UPLOAD_DIR: /var/data/mingji/uploads/
       SPRING_PROFILES_ACTIVE: prod
     ports:
-      - "8080:8080"
+      # 宿主机 911 端口 → 容器内 8080（Docker 不支持前导零，0911 实际即 911）
+      # 访问方式：http://服务器IP:911
+      - "911:8080"
 EOF
 
 echo "========================================="
@@ -121,7 +123,7 @@ echo "  🚀 部署完成！"
 echo "========================================="
 echo ""
 echo "  📱 手机访问地址："
-echo "  http://$(curl -s ifconfig.me):8080"
+echo "  http://$(curl -s ifconfig.me):911"
 echo ""
 echo "  👤 默认用户：mingji"
 echo "  🔑 默认密码：mingji123"
@@ -129,5 +131,5 @@ echo ""
 echo "  📊 查看日志命令："
 echo "  sudo docker compose -f /opt/MingJi/docker-compose.yml logs -f app"
 echo ""
-echo "  ⚠️  如果打不开，请检查阿里云安全组是否放行 8080 和 3306 端口！"
+echo "  ⚠️  如果打不开，请检查阿里云安全组是否放行 911 端口！"
 echo ""
