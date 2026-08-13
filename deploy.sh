@@ -44,12 +44,26 @@ if [ ! -d /opt/MingJi ]; then
   cd /opt
   git clone https://github.com/0911CM/MingJi.git
 else
-  echo "[3/5] 项目已存在，更新代码..."
+  echo "[3/5] 项目已存在，使用 CI/CD 已拉取的代码 ✅"
   cd /opt/MingJi
-  git pull
 fi
 
 cd /opt/MingJi
+
+# ---------- 部署密钥检查 ----------
+# 在 /opt/MingJi/.env 中配置，文件不会提交到 Git：
+# MINGJI_ACCESS_PASSWORD_HASH='$2a$...'（BCrypt，单引号避免 $ 被展开）
+# MINGJI_REMEMBER_KEY=至少32位随机字符串
+if [ ! -f /opt/MingJi/.env ]; then
+  echo "缺少 /opt/MingJi/.env，请先配置站点密码哈希和 Remember-Me 密钥。"
+  exit 1
+fi
+
+if ! grep -q '^MINGJI_ACCESS_PASSWORD_HASH=.' /opt/MingJi/.env || \
+   ! grep -q '^MINGJI_REMEMBER_KEY=.' /opt/MingJi/.env; then
+  echo "/opt/MingJi/.env 缺少 MINGJI_ACCESS_PASSWORD_HASH 或 MINGJI_REMEMBER_KEY。"
+  exit 1
+fi
 
 # ---------- 5. 创建数据库数据目录 ----------
 mkdir -p /opt/mingji-db
@@ -102,10 +116,13 @@ services:
       MYSQL_PASSWORD: Mingji123456!
       MINGJI_UPLOAD_DIR: /var/data/mingji/uploads/
       SPRING_PROFILES_ACTIVE: prod
+      # 当前部署通过 http://IP:6911 访问；启用 HTTPS 后改为 true
+      MINGJI_SECURE_COOKIE: "false"
+    env_file:
+      - /opt/MingJi/.env
     ports:
-      # 宿主机 6911 端口 → 容器内 8080
-      # 访问方式：http://服务器IP:6911
-      - "6911:8080"
+      # 仅供宿主机上的宝塔 Nginx 反向代理，禁止公网绕过门禁入口直接访问
+      - "127.0.0.1:6911:8080"
 EOF
 
 echo "========================================="
@@ -114,8 +131,26 @@ echo "========================================="
 
 # ---------- 7. 启动 ----------
 echo "[5/5] 构建并启动应用（首次构建需要 3-5 分钟）..."
-docker compose down --remove-orphans 2>/dev/null || true
 docker compose up -d --build
+
+# 等待 Spring Boot 可用，避免仅凭“容器已启动”误报部署成功
+echo "检查应用健康状态..."
+healthy=false
+for attempt in $(seq 1 30); do
+  status_code=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 5 \
+    http://127.0.0.1:6911/access 2>/dev/null || true)
+  if [ "$status_code" = "200" ]; then
+    healthy=true
+    break
+  fi
+  sleep 2
+done
+
+if [ "$healthy" != "true" ]; then
+  echo "应用健康检查失败，最近日志如下："
+  docker compose logs --tail=100 app
+  exit 1
+fi
 
 echo ""
 echo "========================================="
@@ -123,13 +158,12 @@ echo "  🚀 部署完成！"
 echo "========================================="
 echo ""
 echo "  📱 手机访问地址："
-echo "  http://$(curl -s ifconfig.me):6911"
+echo "  http://$(curl -s ifconfig.me)"
 echo ""
-echo "  👤 默认用户：mingji"
-echo "  🔑 默认密码：mingji123"
+echo "  🔒 站点密码门禁已启用"
 echo ""
 echo "  📊 查看日志命令："
 echo "  sudo docker compose -f /opt/MingJi/docker-compose.yml logs -f app"
 echo ""
-echo "  ⚠️  如果打不开，请检查阿里云安全组是否放行 6911 端口！"
+echo "  ⚠️  如果打不开，请检查宝塔 Nginx 反向代理及 80/443 端口！"
 echo ""

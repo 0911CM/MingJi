@@ -26,6 +26,14 @@ services:
       # 上传目录（Render 免费版无持久磁盘，用临时目录）
       - key: MINGJI_UPLOAD_DIR
         value: /tmp/mingji-uploads/
+      # 整站密码门禁（BCrypt 哈希，不填写明文密码）
+      - key: MINGJI_ACCESS_PASSWORD_HASH
+        sync: false
+      # 至少 32 位随机字符串；更换后所有一年登录 Cookie 自动失效
+      - key: MINGJI_REMEMBER_KEY
+        sync: false
+      - key: MINGJI_SECURE_COOKIE
+        value: "true"
 
 # ---------- 数据库服务（可选：Render 管理 Postgres/MySQL）----------
 # Render 免费版通常提供 Postgres，可换成 Railway / Neon / PlanetScale 的 MySQL

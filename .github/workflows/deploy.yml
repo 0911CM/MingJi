@@ -11,6 +11,10 @@ on:
     branches: [ master ]
   workflow_dispatch:    # 支持手动触发
 
+concurrency:
+  group: mingji-production-deploy
+  cancel-in-progress: false
+
 jobs:
   deploy:
     name: Deploy to Aliyun Server
@@ -22,13 +26,26 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Check Secrets
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
         run: |
-          if [ -z "${{ secrets.SERVER_HOST }}" ] || [ -z "${{ secrets.SERVER_PASSWORD }}" ]; then
+          if [ -z "$SERVER_HOST" ] || [ -z "$SERVER_PASSWORD" ]; then
             echo "❌ 错误：SERVER_HOST 或 SERVER_PASSWORD Secrets 未配置！"
             echo "请到 GitHub 仓库 → Settings → Secrets and variables → Actions → New repository secret"
             exit 1
           fi
           echo "✅ Secrets 配置正确"
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - name: Run tests
+        run: ./mvnw -B test
 
       - name: Install sshpass
         run: |
@@ -36,16 +53,35 @@ jobs:
           sudo apt-get install -y sshpass
 
       - name: Deploy to Aliyun Server
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SSHPASS: ${{ secrets.SERVER_PASSWORD }}
         run: |
-          sshpass -p "${{ secrets.SERVER_PASSWORD }}" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
-              root@${{ secrets.SERVER_HOST }} \
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          ssh-keyscan -t ed25519 "$SERVER_HOST" > ~/.ssh/known_hosts 2>/dev/null
+          fingerprint=$(ssh-keygen -lf ~/.ssh/known_hosts -E sha256 | awk '{print $2}')
+          if [ "$fingerprint" != "SHA256:4CDEgQug7DDPR8gPq/DN15Sxfe5Xyl4PvYulUccCYug" ]; then
+            echo "❌ 服务器 SSH 指纹不匹配，停止部署"
+            exit 1
+          fi
+          chmod 600 ~/.ssh/known_hosts
+          sshpass -e ssh root@"$SERVER_HOST" \
               "cd /opt/MingJi && git pull && bash deploy.sh"
 
       - name: Verify Deployment
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
         run: |
+          response_code=$(curl --silent --show-error --output /dev/null --write-out "%{http_code}" \
+              --retry 12 --retry-delay 5 --retry-all-errors --max-time 10 \
+              "http://$SERVER_HOST/access")
+          if [ "$response_code" != "200" ]; then
+            echo "❌ 健康检查失败，HTTP 状态码：$response_code"
+            exit 1
+          fi
           echo "========================================="
           echo "  ✅ 部署完成！"
-          echo "  📱 访问地址: http://${{ secrets.SERVER_HOST }}:8080"
-          echo "  👤 默认用户: mingji"
-          echo "  🔑 默认密码: mingji123"
+          echo "  📱 访问地址: http://$SERVER_HOST"
+          echo "  🔒 站点密码门禁工作正常"
           echo "========================================="

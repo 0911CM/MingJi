@@ -23,6 +23,11 @@ uploads/
 # 日志
 *.log
 
+# 本地/服务器环境密钥
+.env
+.env.*
+!.env.example
+
 # 打包产物（jar 可通过 Release 发布，不入库）
 *.jar
 !mvnw

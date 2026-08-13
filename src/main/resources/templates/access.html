@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="robots" content="noindex, nofollow, noarchive">
+    <title>访问验证 · 铭记</title>
+    <link rel="stylesheet" th:href="@{/css/access.css}">
+</head>
+<body>
+    <main class="access-shell">
+        <section class="access-card" aria-labelledby="access-title">
+            <div class="brand-mark" aria-hidden="true">铭</div>
+            <h1 id="access-title">铭记</h1>
+            <p class="access-hint">这是一个私人空间，请输入访问密码。</p>
+
+            <p class="access-message error" th:if="${param.error}">密码不正确，请重试。</p>
+            <p class="access-message success" th:if="${param.logout}">已安全退出。</p>
+
+            <form class="access-form" th:action="@{/access}" method="post">
+                <input type="hidden" name="username" value="owner">
+                <label for="password">访问密码</label>
+                <input id="password" name="password" type="password"
+                       autocomplete="current-password" required autofocus>
+                <button type="submit">进入</button>
+            </form>
+            <p class="remember-hint">验证成功后，此设备一年内无需重复输入。</p>
+        </section>
+    </main>
+</body>
+</html>
