@@ -1,0 +1,11 @@
+# CI/CD 已在构建机使用 Java 17 完成测试和打包；服务器只制作轻量运行镜像。
+FROM eclipse-temurin:17-jre
+WORKDIR /app
+
+COPY target/mingji-0.1.0.jar app.jar
+
+RUN mkdir -p /var/data/mingji/uploads
+
+EXPOSE 8080
+
+CMD ["java", "-jar", "app.jar", "--spring.profiles.active=prod"]

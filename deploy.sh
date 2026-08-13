@@ -50,6 +50,11 @@ fi
 
 cd /opt/MingJi
 
+if [ ! -s target/mingji-0.1.0.jar ]; then
+  echo "缺少 target/mingji-0.1.0.jar，请由 CI/CD 完成测试、打包并上传。"
+  exit 1
+fi
+
 # ---------- 部署密钥检查 ----------
 # 在 /opt/MingJi/.env 中配置，文件不会提交到 Git：
 # MINGJI_ACCESS_PASSWORD_HASH='$2a$...'（BCrypt，单引号避免 $ 被展开）
@@ -78,8 +83,6 @@ if [ -f docker-compose.yml ]; then
 fi
 
 cat > docker-compose.yml << 'EOF'
-version: '3.8'
-
 services:
   mysql:
     image: mysql:8.0
@@ -104,7 +107,9 @@ services:
       retries: 10
 
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.runtime
     container_name: mingji-app
     restart: always
     depends_on:
@@ -130,7 +135,7 @@ echo "  docker-compose.yml 已创建 ✅"
 echo "========================================="
 
 # ---------- 7. 启动 ----------
-echo "[5/5] 构建并启动应用（首次构建需要 3-5 分钟）..."
+echo "[5/5] 使用 CI/CD 已打包的 JAR 构建并启动应用..."
 docker compose up -d --build
 
 # 等待 Spring Boot 可用，避免仅凭“容器已启动”误报部署成功

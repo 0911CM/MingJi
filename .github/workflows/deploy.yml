@@ -44,8 +44,8 @@ jobs:
           java-version: "17"
           cache: maven
 
-      - name: Run tests
-        run: bash ./mvnw -B test
+      - name: Test and package
+        run: bash ./mvnw -B package
 
       - name: Install sshpass
         run: |
@@ -66,7 +66,8 @@ jobs:
             exit 1
           fi
           chmod 600 ~/.ssh/known_hosts
-          sshpass -e ssh root@"$SERVER_HOST" \
+          ssh_options=(-o ServerAliveInterval=30 -o ServerAliveCountMax=10)
+          sshpass -e ssh "${ssh_options[@]}" root@"$SERVER_HOST" \
               'cd /opt/MingJi &&
                pulled=false &&
                for attempt in 1 2 3; do
@@ -74,14 +75,20 @@ jobs:
                  echo "Git 拉取失败，第 ${attempt} 次重试..."
                  sleep 5
                done &&
-               [ "$pulled" = true ] && bash deploy.sh'
+               [ "$pulled" = true ] && mkdir -p target'
+          sshpass -e scp "${ssh_options[@]}" target/mingji-0.1.0.jar \
+              root@"$SERVER_HOST":/opt/MingJi/target/mingji-0.1.0.jar.upload
+          sshpass -e ssh "${ssh_options[@]}" root@"$SERVER_HOST" \
+              'cd /opt/MingJi &&
+               mv target/mingji-0.1.0.jar.upload target/mingji-0.1.0.jar &&
+               bash deploy.sh'
 
       - name: Verify Deployment
         env:
           SERVER_HOST: ${{ secrets.SERVER_HOST }}
           SSHPASS: ${{ secrets.SERVER_PASSWORD }}
         run: |
-          response_code=$(sshpass -e ssh root@"$SERVER_HOST" \
+          response_code=$(sshpass -e ssh -o ServerAliveInterval=30 -o ServerAliveCountMax=10 root@"$SERVER_HOST" \
               "curl --silent --show-error --output /dev/null --write-out '%{http_code}' --max-time 10 http://127.0.0.1:6911/access")
           if [ "$response_code" != "200" ]; then
             echo "❌ 健康检查失败，HTTP 状态码：$response_code"
