@@ -45,7 +45,7 @@ jobs:
           cache: maven
 
       - name: Run tests
-        run: ./mvnw -B test
+        run: bash ./mvnw -B test
 
       - name: Install sshpass
         run: |
